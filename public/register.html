@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注册 - CARSON</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="logo site-logo" onclick="window.location.href='index.html'"><span class="site-logo-text">CARSON</span></div>
+      <div class="nav-links">
+        <a href="index.html">首页</a>
+        <a href="articles.html">文章</a>
+        <a href="friends.html">朋友们</a>
+        <a href="about.html">关于</a>
+      </div>
+      <div class="navbar-actions">
+        <div class="auth-actions" id="authActions">
+          <a class="auth-link" href="login.html">登录</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container page-container">
+    <section class="auth-card">
+      <p class="page-kicker">Register</p>
+      <h1>注册账号</h1>
+      <p class="auth-card-desc">创建一个前台账号，用户名至少 3 个字符，密码至少 6 位。</p>
+      <form class="front-auth-form" id="frontRegisterForm">
+        <div class="form-group-public">
+          <label for="registerUsername">用户名</label>
+          <input id="registerUsername" type="text" autocomplete="username" placeholder="请输入用户名" required>
+        </div>
+        <div class="form-group-public">
+          <label for="registerPassword">密码</label>
+          <input id="registerPassword" type="password" autocomplete="new-password" placeholder="至少 6 位密码" required>
+        </div>
+        <button class="btn-primary auth-submit-btn" id="frontRegisterBtn" type="submit">注册</button>
+        <p class="front-auth-msg" id="frontRegisterMsg"></p>
+      </form>
+      <p class="auth-switch-text">已有账号？<a href="login.html">去登录</a></p>
+    </section>
+  </main>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

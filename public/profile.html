@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人中心 - CARSON</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="logo site-logo" onclick="window.location.href='index.html'"><span class="site-logo-text">CARSON</span></div>
+      <div class="nav-links">
+        <a href="index.html">首页</a>
+        <a href="articles.html">文章</a>
+        <a href="friends.html">朋友们</a>
+        <a href="about.html">关于</a>
+      </div>
+      <div class="navbar-actions">
+        <div class="auth-actions" id="authActions">
+          <a class="auth-link" href="login.html">登录</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container page-container">
+    <section class="auth-card profile-card">
+      <p class="page-kicker">Profile</p>
+      <h1>个人中心</h1>
+      <div class="profile-avatar-large" id="profileAvatarLarge">U</div>
+      <p class="profile-name" id="profileName">未登录</p>
+      <p class="auth-card-desc">这里用于展示前台用户信息，后续可以继续扩展头像上传、评论记录、投稿管理等功能。</p>
+      <div class="profile-actions">
+        <a class="btn-primary" href="index.html">返回首页</a>
+        <a class="auth-link" href="friends.html">申请友链</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

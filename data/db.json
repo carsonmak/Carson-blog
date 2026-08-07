@@ -1,0 +1,214 @@
+{
+  "posts": [
+    {
+      "pinned": false,
+      "announcement": false,
+      "showOnHome": true,
+      "id": "1",
+      "title": "欢迎使用微信风格博客",
+      "summary": "一个简洁优雅的博客系统，灵感来源于微信的经典设计语言。",
+      "content": "<p>这是一个采用微信设计风格的博客系统。</p><h2>主要特性</h2><ul><li>简洁清新的界面设计</li><li>完整的后台管理系统</li><li>文章的增删改查</li><li>分类与标签管理</li><li>响应式布局，适配移动端</li></ul><p>微信风格的核心在于「克制」——用最少的视觉元素传达最清晰的信息。绿色主色调 #07C160 带来活力感，大面积留白让内容呼吸。</p><h2>使用方法</h2><p>1. 访问首页查看博客文章列表</p><p>2. 点击文章标题查看详情</p><p>3. 访问 /admin 进入后台管理</p><p>4. 默认管理员账号：admin / admin123</p><p>开始你的博客之旅吧！</p>",
+      "cover": "",
+      "author": "Admin",
+      "category": "公告",
+      "tags": [
+        "教程",
+        "公告"
+      ],
+      "createdAt": "2026-08-04T09:04:42.852Z",
+      "updatedAt": "2026-08-04T09:04:42.852Z",
+      "views": 135,
+      "published": true
+    },
+    {
+      "pinned": false,
+      "announcement": false,
+      "showOnHome": true,
+      "id": "2",
+      "title": "如何写出高质量的技术博客",
+      "summary": "分享技术写作的方法论，从选题到结构到表达，让你的文章更专业。",
+      "content": "<p>技术博客是开发者最好的名片。本文分享一些实用的写作技巧。</p><h2>选题策略</h2><p>好的选题是成功的一半。建议从以下角度切入：</p><ul><li>解决过的技术难题</li><li>新技术的实践总结</li><li>项目架构设计复盘</li><li>性能优化案例分析</li></ul><h2>结构设计</h2><p>一篇好的技术文章通常包含：问题背景、方案选型、实现细节、踩坑记录、总结展望。逻辑要清晰，让读者能够跟上你的思路。</p><h2>表达技巧</h2><p>多用图表和代码示例，少用大段文字。关键概念加粗强调，复杂流程配示意图。代码要可运行，附带注释说明。</p><p>坚持写作，量变终会引起质变。</p>",
+      "cover": "",
+      "author": "Admin",
+      "category": "技术",
+      "tags": [
+        "写作",
+        "技术"
+      ],
+      "createdAt": "2026-08-03T09:04:42.852Z",
+      "updatedAt": "2026-08-03T09:04:42.852Z",
+      "views": 57,
+      "published": true
+    },
+    {
+      "pinned": false,
+      "announcement": false,
+      "showOnHome": true,
+      "id": "3",
+      "title": "2024年前端开发趋势展望",
+      "summary": "从框架演进到工具链变革，梳理前端生态的最新发展方向。",
+      "content": "<p>前端领域瞬息万变，让我们一起看看当前的发展趋势。</p><h2>框架层面</h2><p>React、Vue、Angular 三足鼎立，但 Svelte 和 Solid 等编译时框架正在崛起。服务端组件（RSC）正在改变前端的开发范式。</p><h2>工具链</h2><p>Vite 已成为新一代构建工具的标准。Turbopack、Rspack 等 Rust/Go 编写的工具在性能上持续突破。</p><h2>AI 辅助开发</h2><p>AI 编程助手已从概念走向日常工具。代码生成、智能补全、自动化测试等场景正在被重新定义。</p><p>保持学习，拥抱变化，是前端开发者永恒的主题。</p>",
+      "cover": "",
+      "author": "Admin",
+      "category": "技术",
+      "tags": [
+        "前端",
+        "趋势"
+      ],
+      "createdAt": "2026-08-02T09:04:42.852Z",
+      "updatedAt": "2026-08-02T09:04:42.852Z",
+      "views": 94,
+      "published": true
+    },
+    {
+      "pinned": false,
+      "announcement": true,
+      "showOnHome": true,
+      "id": "1785841264212",
+      "title": "测试中。。。。",
+      "summary": "",
+      "content": "测试中…………",
+      "cover": "",
+      "author": "admin",
+      "category": "测试",
+      "tags": [],
+      "createdAt": "2026-08-04T11:01:04.212Z",
+      "updatedAt": "2026-08-04T11:01:04.212Z",
+      "views": 0,
+      "published": true
+    },
+    {
+      "id": "1786090351035",
+      "title": "DZ编辑器测试文章",
+      "summary": "",
+      "content": "<b>，这是加粗文字</b>这是使用 DZ 论坛风格编辑器撰写的内容测试",
+      "cover": "",
+      "author": "admin",
+      "category": "技术",
+      "tags": [],
+      "createdAt": "2026-08-07T08:12:31.035Z",
+      "updatedAt": "2026-08-07T08:12:31.035Z",
+      "views": 0,
+      "published": true,
+      "pinned": false,
+      "announcement": false,
+      "showOnHome": false
+    }
+  ],
+  "categories": [
+    "公告",
+    "技术",
+    "生活",
+    "随笔",
+    "测试"
+  ],
+  "tags": [
+    "教程",
+    "公告",
+    "写作",
+    "技术",
+    "前端",
+    "趋势",
+    "生活",
+    "随笔",
+    "测试"
+  ],
+  "admin": {
+    "username": "admin",
+    "password": "$2a$10$bsaEf3VMeJwbZSAviaO84.mY0bR19EJgMZAIIX1qg5n/G3KqTA0Ci"
+  },
+  "friends": [
+    {
+      "status": "approved",
+      "visible": true,
+      "iconUrl": "",
+      "sortOrder": 1,
+      "createdAt": "2026-08-04T09:22:52.014Z",
+      "updatedAt": "2026-08-04T09:22:52.015Z",
+      "id": "friend-1",
+      "name": "天真",
+      "url": "https://bin.zmide.com/",
+      "description": "与君初识，宛如故人",
+      "avatar": "https://aka.doubaocdn.com/s/gbD3baqMhI"
+    },
+    {
+      "status": "approved",
+      "visible": true,
+      "iconUrl": "",
+      "sortOrder": 2,
+      "createdAt": "2026-08-04T09:22:52.015Z",
+      "updatedAt": "2026-08-04T09:22:52.015Z",
+      "id": "friend-2",
+      "name": "ligen131",
+      "url": "https://ligen.life/",
+      "description": "Don't worry, be happy.",
+      "avatar": "https://aka.doubaocdn.com/s/b7lTvYK1dr"
+    },
+    {
+      "status": "approved",
+      "visible": true,
+      "iconUrl": "",
+      "sortOrder": 3,
+      "createdAt": "2026-08-04T09:22:52.015Z",
+      "updatedAt": "2026-08-04T09:22:52.015Z",
+      "id": "friend-3",
+      "name": "jyi2ya 的博客",
+      "url": "https://jyi2ya.github.io/",
+      "description": "Let me write C again and kill me.",
+      "avatar": "https://aka.doubaocdn.com/s/1quPpCxtBk"
+    },
+    {
+      "status": "approved",
+      "visible": true,
+      "iconUrl": "",
+      "sortOrder": 4,
+      "createdAt": "2026-08-04T09:22:52.015Z",
+      "updatedAt": "2026-08-04T09:22:52.015Z",
+      "id": "friend-4",
+      "name": "Chales",
+      "url": "https://www.n2ptr.space/",
+      "description": "just a blog",
+      "avatar": "https://aka.doubaocdn.com/s/1tCmUyEKIU"
+    },
+    {
+      "status": "approved",
+      "visible": true,
+      "iconUrl": "",
+      "sortOrder": 5,
+      "createdAt": "2026-08-04T09:22:52.015Z",
+      "updatedAt": "2026-08-04T09:22:52.015Z",
+      "id": "friend-5",
+      "name": "笨蛋小破站",
+      "url": "https://blog.obdo.cc/",
+      "description": "May all the beauty be blessed.",
+      "avatar": "https://aka.doubaocdn.com/s/A8Wn2YvWm2"
+    }
+  ],
+  "users": [
+    {
+      "id": "1785836037492",
+      "username": "root",
+      "password": "$2a$10$Y6XgsNejl4wn/1fP6mjZr.rhozeJ3eca35x9XiIJWt.BX3JQMSuyC",
+      "createdAt": "2026-08-04T09:33:57.575Z"
+    }
+  ],
+  "settings": {
+    "siteName": "CARSON",
+    "logo": "",
+    "footerText": "",
+    "updatedAt": "2026-08-04T10:40:06.696Z",
+    "commentSettings": {
+      "blockedKeywords": [],
+      "homepagePageSize": 5,
+      "postPageSize": 10
+    },
+    "about": {
+      "kicker": "About",
+      "title": "关于本站",
+      "summary": "这是一个微信风格的轻量博客系统，专注于文章发布、内容阅读和简单后台管理。",
+      "content": "<section class=\"about-card\"><h2>设计理念</h2><p>本站延续微信式的简洁风格：绿色主色、清晰层级、卡片布局和大量留白，让读者把注意力放在内容本身。</p></section><section class=\"about-card\"><h2>功能说明</h2><ul><li>前台支持文章列表、分类筛选、搜索、文章详情和友情链接页面。</li><li>后台支持登录认证、仪表盘统计、文章新增、编辑、删除和发布状态管理。</li><li>手机端底部导航包含主页、文章、朋友们、关于，方便移动端浏览。</li></ul></section><section class=\"about-card\"><h2>友链交换</h2><p>如果你也有个人博客，可以按照“朋友们”页面中的卡片格式添加站点名称、链接、头像和一句简短介绍。</p><a class=\"btn-primary\" href=\"friends.html\">查看朋友们</a></section>"
+    },
+    "description": "CARSON 的个人博客，记录文章、朋友与留言反馈。"
+  },
+  "comments": []
+}

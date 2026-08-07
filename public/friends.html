@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>朋友们 - CARSON</title>
+  <meta name="description" content="CARSON的友情链接页面">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="logo site-logo" onclick="window.location.href='index.html'"><span class="site-logo-text">CARSON</span></div>
+      <div class="nav-links">
+        <a href="index.html">首页</a>
+        <a href="articles.html">文章</a>
+        <a href="friends.html" class="active">朋友们</a>
+        <a href="about.html">关于</a>
+      </div>
+      <div class="navbar-actions">
+        <div class="auth-actions" id="authActions">
+          <a class="auth-link" href="login.html">登录</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主内容区 -->
+  <main class="container page-container">
+    <section class="page-hero">
+      <p class="page-kicker">Friends</p>
+      <h1>朋友们</h1>
+      <p>这里收集了一些有趣、真诚、持续创作的个人站点。欢迎互换友链，一起让独立博客保持热闹。</p>
+    </section>
+
+    <section class="friend-section">
+      <div class="section-title-row">
+        <h2>友情链接</h2>
+        <span>只显示审核通过的友链</span>
+      </div>
+
+      <div class="friend-grid" id="friendGrid">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>正在加载友链...</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="friend-section">
+      <div class="section-title-row">
+        <h2>申请友链</h2>
+        <span>提交后需后台审核，通过后才会展示</span>
+      </div>
+
+      <form class="friend-submit-form" id="friendSubmitForm" enctype="multipart/form-data">
+        <div class="form-row-public">
+          <div class="form-group-public">
+            <label for="friendName">站点名称 <span>*</span></label>
+            <input id="friendName" name="name" type="text" placeholder="例如：某某的博客" required>
+          </div>
+          <div class="form-group-public">
+            <label for="friendUrl">站点链接 <span>*</span></label>
+            <input id="friendUrl" name="url" type="url" placeholder="https://example.com" required>
+          </div>
+        </div>
+
+        <div class="form-group-public">
+          <label for="friendDescription">一句话介绍</label>
+          <input id="friendDescription" name="description" type="text" maxlength="80" placeholder="写一句你的网站签名">
+        </div>
+
+        <div class="form-group-public">
+          <label for="friendIconUrl">小图标链接</label>
+          <input id="friendIconUrl" name="iconUrl" type="url" placeholder="https://example.com/favicon.ico">
+          <p class="form-tip">可填写站点 favicon 或头像图片链接；如果同时上传头像，将优先显示上传头像。</p>
+        </div>
+
+        <div class="form-group-public">
+          <label for="friendAvatar">小头像图片</label>
+          <input id="friendAvatar" name="avatar" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml">
+          <p class="form-tip">支持 PNG、JPG、GIF、WEBP、SVG，大小不得大于 1MB。</p>
+        </div>
+
+        <div class="friend-form-actions">
+          <button class="btn-primary" type="submit" id="friendSubmitBtn">提交审核</button>
+          <span id="friendSubmitMsg" class="friend-submit-msg"></span>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <!-- 底部 footer -->
+  <footer class="footer">
+  </footer>
+
+  <!-- 手机端底部导航 -->
+  <nav class="mobile-tabbar" aria-label="手机端底部导航">
+    <a class="mobile-tabbar-item" href="index.html" data-tab="home">
+      <span class="mobile-tabbar-icon">⌂</span>
+      <span>主页</span>
+    </a>
+    <a class="mobile-tabbar-item" href="articles.html" data-tab="articles">
+      <span class="mobile-tabbar-icon">☰</span>
+      <span>文章</span>
+    </a>
+    <a class="mobile-tabbar-item" href="friends.html" data-tab="friends">
+      <span class="mobile-tabbar-icon">♡</span>
+      <span>朋友们</span>
+    </a>
+    <a class="mobile-tabbar-item" href="about.html" data-tab="about">
+      <span class="mobile-tabbar-icon">○</span>
+      <span>关于</span>
+    </a>
+  </nav>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

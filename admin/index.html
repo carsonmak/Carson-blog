@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CARSON 管理后台</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/dz-editor.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- 侧边栏 -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M9.5 4C5.36 4 2 6.69 2 10c0 1.89 1.08 3.56 2.78 4.66L4 17l2.83-1.35c.84.21 1.74.33 2.67.33.27 0 .53-.01.79-.03C9.8 15.36 9.5 14.45 9.5 13.5c0-3.04 2.91-5.5 6.5-5.5.27 0 .53.02.79.04C16.02 5.44 13.05 4 9.5 4zM7 8.5a1 1 0 110 2 1 1 0 010-2zm5 0a1 1 0 110 2 1 1 0 010-2zm4 1C12.91 9.5 10 11.74 10 14.5c0 1.5.85 2.85 2.18 3.76L11 20.5l2.3-1.1c.7.18 1.45.28 2.2.28.1 0 .2 0 .3-.01.84.51 1.86.83 3 .83 3.59 0 6.5-2.46 6.5-5.5S22.59 9.5 19 9.5h-3zm-1.5 2a.75.75 0 110 1.5.75.75 0 010-1.5zm4 0a.75.75 0 110 1.5.75.75 0 010-1.5z"/></svg>
+        </div>
+        <span class="logo-text">CARSON 后台</span>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebarNav">
+        <div class="nav-section-title">管理</div>
+        <div class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">📊</span>
+          <span>仪表盘</span>
+        </div>
+        <div class="nav-item" data-page="posts">
+          <span class="nav-icon">📋</span>
+          <span>文章管理</span>
+        </div>
+        <div class="nav-item" data-page="editor">
+          <span class="nav-icon">✏️</span>
+          <span>写文章</span>
+        </div>
+        <div class="nav-item" data-page="categories">
+          <span class="nav-icon">📁</span>
+          <span>分类管理</span>
+        </div>
+        <div class="nav-item" data-page="friends">
+          <span class="nav-icon">🤝</span>
+          <span>友链管理</span>
+        </div>
+        <div class="nav-item" data-page="comments">
+          <span class="nav-icon">💬</span>
+          <span>留言管理</span>
+        </div>
+        <div class="nav-item" data-page="cache">
+          <span class="nav-icon">⚡</span>
+          <span>缓存管理</span>
+        </div>
+        <div class="nav-item" data-page="settings">
+          <span class="nav-icon">⚙️</span>
+          <span>网站设置</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="nav-item nav-frontend" id="viewFrontendBtn">
+          <span class="nav-icon">🌐</span>
+          <span>网站前台</span>
+        </div>
+        <div class="nav-item nav-logout" id="logoutBtn">
+          <span class="nav-icon">🚪</span>
+          <span>退出登录</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 移动端遮罩 -->
+    <div class="sidebar-mask" id="sidebarMask"></div>
+
+    <!-- 主内容区 -->
+    <div class="main">
+      <header class="topbar">
+        <div style="display:flex;align-items:center;">
+          <button class="menu-toggle" id="menuToggle">☰</button>
+          <span class="page-title" id="pageTitle">仪表盘</span>
+        </div>
+        <div class="user-info">
+          <span class="user-avatar" id="userAvatar">A</span>
+          <span id="usernameDisplay">Admin</span>
+        </div>
+      </header>
+
+      <main class="content">
+        <!-- 仪表盘 -->
+        <section class="page active" id="page-dashboard">
+          <div class="stat-grid" id="statGrid">
+            <div class="loading"><div class="spinner"></div><br>加载统计中...</div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">最近文章</span>
+              <button class="btn btn-sm btn-ghost" data-page="posts" data-jump="posts">查看全部</button>
+            </div>
+            <div class="panel-body">
+              <ul class="recent-list" id="recentList">
+                <li class="loading"><div class="spinner"></div><br>加载中...</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- 文章管理 -->
+        <section class="page" id="page-posts">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">文章列表</span>
+              <button class="btn btn-sm btn-primary" data-jump="editor">+ 写文章</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>标题</th>
+                    <th>分类</th>
+                    <th>标签</th>
+                    <th>浏览量</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="postsTableBody">
+                  <tr><td colspan="7"><div class="loading"><div class="spinner"></div><br>加载中...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 写文章 / 编辑文章 -->
+        <section class="page" id="page-editor">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title" id="editorTitle">写文章</span>
+            </div>
+            <div class="panel-body">
+              <form class="editor-form" id="postForm" autocomplete="off">
+                <input type="hidden" id="postId">
+
+                <div class="form-group">
+                  <label>标题 <span class="required">*</span></label>
+                  <input type="text" class="form-input" id="postTitle" placeholder="请输入文章标题" required>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>分类</label>
+                    <select class="form-select" id="postCategory">
+                      <option value="">请选择分类</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>标签</label>
+                    <input type="text" class="form-input" id="postTags" placeholder="多个标签用英文逗号分隔">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>摘要</label>
+                  <textarea class="form-textarea" id="postSummary" placeholder="请输入文章摘要（选填）"></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label>内容（CARSON系统编辑器）</label>
+                  <div class="editor-toolbar">
+                    <label class="btn btn-sm btn-ghost upload-inline-btn" for="articleImageInput">上传图片并插入</label>
+                    <input type="file" id="articleImageInput" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml" hidden>
+                    <span class="form-help">已切换为MZ（CARSON）系统编辑器，支持富文本排版、表情、代码块等。仍支持 PNG、JPG、GIF、WEBP、SVG，大小不超过 5MB。</span>
+                  </div>
+                  <!-- 隐藏的原始 textarea，编辑器内容会同步到这里，保证表单提交兼容 -->
+                  <textarea class="form-textarea content-area" id="postContent" placeholder="请输入文章内容，支持 HTML 格式" hidden></textarea>
+                  <!-- DZ 论坛风格编辑器渲染容器 -->
+                  <div id="dzEditorWrap"></div>
+                </div>
+
+                <div class="form-group">
+                  <label>发布状态</label>
+                  <div class="switch-row">
+                    <label class="switch">
+                      <input type="checkbox" id="postPublished" checked>
+                      <span class="switch-track"><span class="switch-thumb"></span></span>
+                    </label>
+                    <span class="switch-label" id="publishLabel">已发布</span>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>文章置顶</label>
+                    <div class="switch-row">
+                      <label class="switch">
+                        <input type="checkbox" id="postPinned">
+                        <span class="switch-track"><span class="switch-thumb"></span></span>
+                      </label>
+                      <span class="switch-label">置顶后会排在普通文章列表最前面</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>首页显示</label>
+                    <div class="switch-row">
+                      <label class="switch">
+                        <input type="checkbox" id="postShowOnHome">
+                        <span class="switch-track"><span class="switch-thumb"></span></span>
+                      </label>
+                      <span class="switch-label">勾选后才会显示在网站首页</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>网站公告</label>
+                    <div class="switch-row">
+                      <label class="switch">
+                        <input type="checkbox" id="postAnnouncement">
+                        <span class="switch-track"><span class="switch-thumb"></span></span>
+                      </label>
+                      <span class="switch-label">作为主页公告独立显示，不混入普通文章列表</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary" id="saveBtn">保存文章</button>
+                  <button type="button" class="btn btn-ghost" data-jump="posts">取消</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- 分类管理 -->
+        <section class="page" id="page-categories">
+          <div class="panel category-admin-form-panel">
+            <div class="panel-header">
+              <span class="panel-title" id="categoryEditorTitle">添加分类</span>
+            </div>
+            <div class="panel-body">
+              <form class="editor-form" id="categoryForm" autocomplete="off">
+                <input type="hidden" id="editingCategoryName">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>分类名称 <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="categoryNameInput" maxlength="30" placeholder="请输入分类名称" required>
+                    <div class="form-help">分类会出现在前台分类筛选栏，也会出现在写文章的分类下拉框中。</div>
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary" id="saveCategoryBtn">保存分类</button>
+                  <button type="button" class="btn btn-ghost" id="resetCategoryForm">清空表单</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">分类列表</span>
+              <button class="btn btn-sm btn-ghost" id="refreshCategoriesBtn">刷新</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>分类名称</th>
+                    <th>文章数量</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="categoriesTableBody">
+                  <tr><td colspan="3"><div class="loading"><div class="spinner"></div><br>加载中...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 友链管理 -->
+        <section class="page" id="page-friends">
+          <div class="panel friend-admin-form-panel">
+            <div class="panel-header">
+              <span class="panel-title" id="friendEditorTitle">添加友链</span>
+            </div>
+            <div class="panel-body">
+              <form class="editor-form" id="friendForm" autocomplete="off" enctype="multipart/form-data">
+                <input type="hidden" id="friendId">
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>站点名称 <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="friendName" placeholder="请输入站点名称" required>
+                  </div>
+                  <div class="form-group">
+                    <label>站点链接 <span class="required">*</span></label>
+                    <input type="url" class="form-input" id="friendUrl" placeholder="https://example.com" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>一句话介绍</label>
+                  <input type="text" class="form-input" id="friendDescription" placeholder="请输入站点签名或简介">
+                </div>
+
+                <div class="form-group">
+                  <label>小图标链接</label>
+                  <input type="url" class="form-input" id="friendIconUrl" placeholder="https://example.com/favicon.ico">
+                  <div class="form-help">可填写站点 favicon 或头像图片链接；如果上传了小头像，将优先显示上传头像。</div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>审核状态</label>
+                    <select class="form-select" id="friendStatus">
+                      <option value="pending">待审核</option>
+                      <option value="approved">审核通过</option>
+                      <option value="rejected">审核不通过</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>排行编号</label>
+                    <input type="number" class="form-input" id="friendSortOrder" min="0" max="9999" placeholder="数字越小越靠前，默认0">
+                    <div class="form-help">控制前台友链显示顺序，数字越小排名越靠前。</div>
+                  </div>
+                  <div class="form-group">
+                    <label>小头像图片</label>
+                    <input type="file" class="form-input" id="friendAvatar" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml">
+                    <div class="form-help">支持 PNG、JPG、GIF、WEBP、SVG，大小不得大于 1MB。重新上传会替换旧头像。</div>
+                  </div>
+                </div>
+
+                <div class="friend-avatar-preview" id="friendAvatarPreview"></div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary" id="saveFriendBtn">保存友链</button>
+                  <button type="button" class="btn btn-ghost" id="resetFriendForm">清空表单</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="panel friend-table-panel">
+            <div class="panel-header">
+              <span class="panel-title">友链列表</span>
+              <button class="btn btn-sm btn-ghost" id="refreshFriendsBtn">刷新</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width:64px;">序号</th>
+                    <th style="width:56px;">排行</th>
+                    <th>站点</th>
+                    <th>链接</th>
+                    <th>状态</th>
+                    <th>提交时间</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="friendsTableBody">
+                  <tr><td colspan="7"><div class="loading"><div class="spinner"></div><br>加载中...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 留言管理 -->
+        <section class="page" id="page-comments">
+          <div class="panel comment-settings-panel">
+            <div class="panel-header">
+              <span class="panel-title">留言设置</span>
+            </div>
+            <div class="panel-body">
+              <form class="editor-form" id="commentSettingsForm" autocomplete="off">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>主页每页显示留言数</label>
+                    <input type="number" class="form-input" id="homepagePageSize" min="1" max="100" placeholder="例如：5">
+                    <div class="form-help">超过这个数量后，前台主页留言区会自动显示分页，不会隐藏留言。</div>
+                  </div>
+                  <div class="form-group">
+                    <label>文章每页显示留言数</label>
+                    <input type="number" class="form-input" id="postPageSize" min="1" max="100" placeholder="例如：10">
+                    <div class="form-help">文章详情页留言超过该数量后，也会分页显示。</div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>需审核关键词</label>
+                  <textarea class="form-textarea" id="blockedKeywords" placeholder="每行一个关键词，或用逗号分隔"></textarea>
+                  <div class="form-help">用户或游客留言触碰这些关键词后，将进入待审核，管理员通过后才会显示在留言区。</div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary" id="saveCommentSettingsBtn">保存留言设置</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">留言列表</span>
+              <div class="comment-filter-actions">
+                <select class="form-select comment-filter" id="commentStatusFilter">
+                  <option value="">全部状态</option>
+                  <option value="pending">待审核</option>
+                  <option value="approved">已通过</option>
+                  <option value="rejected">不通过</option>
+                </select>
+                <select class="form-select comment-filter" id="commentTargetFilter">
+                  <option value="">全部位置</option>
+                  <option value="home">主页留言区</option>
+                  <option value="post">文章留言区</option>
+                </select>
+                <button class="btn btn-sm btn-ghost" id="refreshCommentsBtn">刷新</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>留言内容</th>
+                    <th>昵称</th>
+                    <th>位置</th>
+                    <th>状态</th>
+                    <th>提交时间</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="commentsTableBody">
+                  <tr><td colspan="6"><div class="loading"><div class="spinner"></div><br>加载中...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 网站设置 -->
+        <section class="page" id="page-settings">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">网站设置</span>
+            </div>
+            <div class="panel-body">
+              <form class="editor-form" id="siteSettingsForm" autocomplete="off" enctype="multipart/form-data">
+                <div class="form-group">
+                  <label>网站名称</label>
+                  <input type="text" class="form-input" id="siteNameInput" placeholder="请输入网站名称">
+                </div>
+
+                <div class="form-group">
+                  <label>网站简介</label>
+                  <textarea class="form-textarea" id="siteDescriptionInput" maxlength="200" placeholder="请输入网站简介，用于前台页面描述和搜索引擎展示"></textarea>
+                  <div class="form-help">建议控制在 80～120 字以内，会同步到前台页面的 description。</div>
+                </div>
+
+                <div class="form-group">
+                  <label>网站 Logo</label>
+                  <input type="file" class="form-input" id="siteLogoInput" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml">
+                  <div class="form-help">支持 PNG、JPG、GIF、WEBP、SVG，大小不得大于 1MB。上传后前台顶部 Logo 会自动更新。</div>
+                </div>
+
+                <div class="form-group">
+                  <label>底部文字</label>
+                  <textarea class="form-textarea" id="footerTextInput" placeholder="显示在加密版权下方，可留空"></textarea>
+                  <div class="form-help">不会替换或覆盖加密版权，只会额外显示在其下方。</div>
+                </div>
+
+                <div class="site-logo-preview" id="siteLogoPreview"></div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary" id="saveSiteSettingsBtn">保存设置</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="panel about-settings-panel">
+            <div class="panel-header">
+              <span class="panel-title">关于页面设置</span>
+            </div>
+            <div class="panel-body">
+              <form class="editor-form" id="aboutSettingsForm" autocomplete="off">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>页面小标题</label>
+                    <input type="text" class="form-input" id="aboutKickerInput" placeholder="例如：About">
+                  </div>
+                  <div class="form-group">
+                    <label>页面标题</label>
+                    <input type="text" class="form-input" id="aboutTitleInput" placeholder="例如：关于本站">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>页面简介</label>
+                  <textarea class="form-textarea" id="aboutSummaryInput" placeholder="显示在关于页顶部的简短介绍"></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label>关于页面正文（HTML）</label>
+                  <textarea class="form-textarea content-area" id="aboutContentInput" placeholder="请输入关于页面 HTML 内容"></textarea>
+                  <div class="form-help">支持 HTML 代码，例如 &lt;section class=&quot;about-card&quot;&gt;&lt;h2&gt;标题&lt;/h2&gt;&lt;p&gt;内容&lt;/p&gt;&lt;/section&gt;。</div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary" id="saveAboutSettingsBtn">保存关于页面</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- 缓存管理 -->
+        <section class="page" id="page-cache">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">缓存概览</span>
+              <button class="btn btn-sm btn-ghost" id="refreshCacheBtn">刷新</button>
+            </div>
+            <div class="panel-body">
+              <div class="cache-stats-grid" id="cacheStatsGrid">
+                <div class="loading"><div class="spinner"></div><br>加载中...</div>
+              </div>
+              <div class="cache-actions" style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;">
+                <button class="btn btn-danger" id="clearAllCacheBtn">清除全部缓存</button>
+                <button class="btn btn-ghost" id="clearPostsCacheBtn">清除文章缓存</button>
+                <button class="btn btn-ghost" id="clearCommentsCacheBtn">清除留言缓存</button>
+                <button class="btn btn-ghost" id="clearFriendsCacheBtn">清除友链缓存</button>
+                <button class="btn btn-ghost" id="clearSettingsCacheBtn">清除设置缓存</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">缓存条目</span>
+            </div>
+            <div class="panel-body">
+              <div class="cache-entries" id="cacheEntries">
+                <p style="color:var(--text-secondary);">点击「刷新」查看当前缓存条目</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer class="admin-protected-footer" id="adminProtectedFooter" data-protected-footer="1"></footer>
+    </div>
+  </div>
+
+  <!-- 删除确认弹窗 -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+      <div class="modal-body">
+        <div class="modal-icon">⚠️</div>
+        <div class="modal-title">确认删除</div>
+        <div class="modal-desc" id="deleteDesc">确定要删除这篇文章吗？此操作不可恢复。</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" id="cancelDelete">取消</button>
+        <button class="btn btn-confirm" id="confirmDelete">确定删除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast 提示 -->
+  <div class="toast" id="toast"></div>
+
+  <script src="js/dz-editor.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

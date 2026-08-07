@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文章 - CARSON</title>
+  <meta name="description" content="CARSON文章列表">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="logo site-logo" onclick="window.location.href='index.html'"><span class="site-logo-text">CARSON</span></div>
+      <div class="nav-links">
+        <a href="index.html">首页</a>
+        <a href="articles.html" class="active">文章</a>
+        <a href="friends.html">朋友们</a>
+        <a href="about.html">关于</a>
+      </div>
+      <div class="navbar-actions">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="搜索文章..." autocomplete="off">
+          <button class="search-btn" id="searchBtn" aria-label="搜索">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="auth-actions" id="authActions">
+          <a class="auth-link" href="login.html">登录</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 分类筛选标签栏 -->
+  <div class="category-bar">
+    <div class="category-bar-inner" id="categoryBar">
+      <!-- 分类标签由 JS 动态渲染 -->
+    </div>
+  </div>
+
+  <!-- 文章列表页 -->
+  <main class="container page-container has-category-bar" id="articles">
+    <section class="page-hero article-page-hero">
+      <span class="page-kicker">文章页</span>
+      <h1>全部文章</h1>
+      <p>这里展示所有已发布的普通文章；网站首页只展示后台勾选“首页显示”的文章。</p>
+    </section>
+
+    <div id="app" class="post-list" data-home-only="false">
+      <!-- 文章列表由 JS 动态渲染 -->
+    </div>
+  </main>
+
+  <!-- 底部 footer -->
+  <footer class="footer">
+  </footer>
+
+  <!-- 手机端底部导航 -->
+  <nav class="mobile-tabbar" aria-label="手机端底部导航">
+    <a class="mobile-tabbar-item" href="index.html" data-tab="home">
+      <span class="mobile-tabbar-icon">⌂</span>
+      <span>主页</span>
+    </a>
+    <a class="mobile-tabbar-item" href="articles.html" data-tab="articles">
+      <span class="mobile-tabbar-icon">☰</span>
+      <span>文章</span>
+    </a>
+    <a class="mobile-tabbar-item" href="friends.html" data-tab="friends">
+      <span class="mobile-tabbar-icon">♡</span>
+      <span>朋友们</span>
+    </a>
+    <a class="mobile-tabbar-item" href="about.html" data-tab="about">
+      <span class="mobile-tabbar-icon">○</span>
+      <span>关于</span>
+    </a>
+  </nav>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
