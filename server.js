@@ -438,6 +438,16 @@ function normalizeUrl(url) {
   return 'https://' + value;
 }
 
+function escapeUserContent(text) {
+  return String(text || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/\n/g, '<br>');
+}
+
 function fileToAvatarPath(file) {
   return file ? '/uploads/friends/' + file.filename : '';
 }
@@ -533,6 +543,23 @@ function authMiddleware(req, res, next) {
   }
 }
 
+function userAuthMiddleware(req, res, next) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ error: '请先登录前台账号' });
+  }
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    if (decoded.type !== 'user') {
+      return res.status(401).json({ error: '登录令牌无效' });
+    }
+    req.user = decoded;
+    next();
+  } catch (e) {
+    return res.status(401).json({ error: '登录令牌无效' });
+  }
+}
+
 // 写操作后自动清除相关缓存
 function clearCacheAfterMutation(scope) {
   // scope: 'posts', 'comments', 'friends', 'settings', 'meta', 'all'
@@ -551,6 +578,23 @@ function clearCacheAfterMutation(scope) {
   list.forEach(function (p) { clearCache(p); });
 }
 
+function clearCacheByScope(scope, pattern) {
+  if (scope === 'pattern' && pattern) return clearCache(pattern);
+  if (scope === 'all' || !scope) return clearCache();
+  const patterns = {
+    posts: ['/api/posts', '/api/announcements', '/api/meta'],
+    comments: ['/api/comments'],
+    friends: ['/api/friends'],
+    settings: ['/api/settings', '/api/about'],
+    meta: ['/api/meta', '/api/posts']
+  };
+  const list = patterns[scope];
+  if (!list) return clearCache();
+  let count = 0;
+  list.forEach(function (p) { count += clearCache(p); });
+  return count;
+}
+
 // ============ 后台缓存管理接口 ============
 app.get('/api/admin/cache/stats', authMiddleware, (req, res) => {
   res.json(getCacheStats());
@@ -559,12 +603,7 @@ app.get('/api/admin/cache/stats', authMiddleware, (req, res) => {
 app.post('/api/admin/cache/clear', authMiddleware, (req, res) => {
   const scope = String(req.body.scope || 'all').trim();
   const pattern = req.body.pattern ? String(req.body.pattern).trim() : '';
-  let cleared;
-  if (scope === 'pattern' && pattern) {
-    cleared = clearCache(pattern);
-  } else {
-    cleared = clearCache();
-  }
+  const cleared = clearCacheByScope(scope, pattern);
   res.json({ message: '缓存已清除', cleared: cleared });
 });
 
@@ -644,6 +683,67 @@ app.get('/api/user/me', (req, res) => {
   }
 });
 
+// 前台用户：查看自己的投稿记录
+app.get('/api/user/submissions', userAuthMiddleware, (req, res) => {
+  const db = loadDB();
+  const username = req.user.username;
+  const list = db.posts
+    .filter(post => post.submittedBy === username)
+    .sort((a, b) => new Date(b.submittedAt || b.createdAt) - new Date(a.submittedAt || a.createdAt))
+    .map(({ content, ...rest }) => rest);
+  res.json(list);
+});
+
+// 前台用户：提交文章投稿，默认待管理员审核，审核通过后才会在前台展示
+app.post('/api/user/submissions', userAuthMiddleware, (req, res) => {
+  const db = loadDB();
+  const title = String(req.body.title || '').trim();
+  const summary = String(req.body.summary || '').trim();
+  const content = String(req.body.content || '').trim();
+  const category = String(req.body.category || '投稿').trim() || '投稿';
+  const rawTags = Array.isArray(req.body.tags)
+    ? req.body.tags
+    : String(req.body.tags || '').split(/[,，]/);
+  const tags = rawTags.map(t => String(t || '').trim()).filter(Boolean).slice(0, 8);
+
+  if (!title) return res.status(400).json({ error: '投稿标题不能为空' });
+  if (!content) return res.status(400).json({ error: '投稿正文不能为空' });
+  if (title.length > 80) return res.status(400).json({ error: '标题不能超过 80 个字符' });
+  if (summary.length > 300) return res.status(400).json({ error: '摘要不能超过 300 个字符' });
+  if (content.length > 20000) return res.status(400).json({ error: '正文不能超过 20000 个字符' });
+
+  const post = {
+    id: Date.now().toString() + '-' + Math.random().toString(16).slice(2, 8),
+    title,
+    summary,
+    content: escapeUserContent(content),
+    cover: '',
+    author: req.user.username,
+    category,
+    tags,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    views: 0,
+    published: false,
+    pinned: false,
+    announcement: false,
+    showOnHome: true,
+    reviewStatus: 'pending',
+    submittedBy: req.user.username,
+    submittedAt: new Date().toISOString(),
+    reviewedAt: '',
+    reviewer: '',
+    rejectionReason: ''
+  };
+
+  db.posts.push(post);
+  if (!db.categories.includes(category)) db.categories.push(category);
+  tags.forEach(t => { if (!db.tags.includes(t)) db.tags.push(t); });
+  saveDB(db);
+  clearCacheAfterMutation('meta');
+  res.status(201).json({ message: '投稿已提交，请等待管理员审核', submission: { ...post, content: undefined } });
+});
+
 // ============ 文章接口 ============
 // 获取文章列表（前台，只返回已发布的）
 app.get('/api/posts', (req, res) => {
@@ -698,6 +798,40 @@ app.get('/api/admin/posts', authMiddleware, (req, res) => {
   res.json(list);
 });
 
+// 后台：获取用户投稿列表
+app.get('/api/admin/submissions', authMiddleware, (req, res) => {
+  const db = loadDB();
+  const status = String(req.query.status || '').trim();
+  let submissions = db.posts.filter(post => post.submittedBy || ['pending', 'approved', 'rejected'].includes(post.reviewStatus));
+  if (['pending', 'approved', 'rejected'].includes(status)) {
+    submissions = submissions.filter(post => (post.reviewStatus || (post.published ? 'approved' : 'pending')) === status);
+  }
+  submissions = submissions
+    .sort((a, b) => new Date(b.submittedAt || b.createdAt) - new Date(a.submittedAt || a.createdAt))
+    .map(({ content, ...rest }) => rest);
+  res.json(submissions);
+});
+
+// 后台：审核用户投稿。通过后会正式发布到前台，不通过则继续隐藏。
+app.patch('/api/admin/submissions/:id/status', authMiddleware, (req, res) => {
+  const db = loadDB();
+  const post = db.posts.find(item => String(item.id) === String(req.params.id));
+  if (!post || !post.submittedBy) return res.status(404).json({ error: '投稿不存在' });
+  const status = String(req.body.status || '').trim();
+  if (!['pending', 'approved', 'rejected'].includes(status)) {
+    return res.status(400).json({ error: '审核状态无效' });
+  }
+  post.reviewStatus = status;
+  post.published = status === 'approved';
+  post.reviewedAt = new Date().toISOString();
+  post.reviewer = req.user.username || 'admin';
+  post.rejectionReason = status === 'rejected' ? String(req.body.reason || '').trim() : '';
+  post.updatedAt = new Date().toISOString();
+  saveDB(db);
+  clearCacheAfterMutation('posts');
+  res.json(post);
+});
+
 // 后台：获取单篇文章
 app.get('/api/admin/posts/:id', authMiddleware, (req, res) => {
   const db = loadDB();
@@ -728,7 +862,8 @@ app.post('/api/admin/posts', authMiddleware, (req, res) => {
     published: published !== undefined ? published : true,
     pinned: !!pinned,
     announcement: !!announcement,
-    showOnHome: !!showOnHome
+    showOnHome: !!showOnHome,
+    reviewStatus: 'approved'
   };
   db.posts.push(post);
   // 更新分类和标签
@@ -794,6 +929,7 @@ app.get('/api/admin/stats', authMiddleware, (req, res) => {
   const db = loadDB();
   const totalPosts = db.posts.length;
   const publishedPosts = db.posts.filter(p => p.published).length;
+  const pendingSubmissions = db.posts.filter(p => p.submittedBy && (p.reviewStatus || 'pending') === 'pending').length;
   const totalViews = db.posts.reduce((sum, p) => sum + (p.views || 0), 0);
   const totalCategories = db.categories.length;
   const totalTags = db.tags.length;
@@ -805,7 +941,7 @@ app.get('/api/admin/stats', authMiddleware, (req, res) => {
     const count = db.posts.filter(p => p.createdAt.split('T')[0] === dateStr).length;
     last7Days.push({ date: dateStr, count });
   }
-  res.json({ totalPosts, publishedPosts, totalViews, totalCategories, totalTags, last7Days });
+  res.json({ totalPosts, publishedPosts, pendingSubmissions, totalViews, totalCategories, totalTags, last7Days });
 });
 
 // 获取分类和标签

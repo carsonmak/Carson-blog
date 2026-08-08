@@ -44,6 +44,10 @@
           <span class="nav-icon">💬</span>
           <span>留言管理</span>
         </div>
+        <div class="nav-item" data-page="submissions">
+          <span class="nav-icon">📝</span>
+          <span>投稿审核</span>
+        </div>
         <div class="nav-item" data-page="cache">
           <span class="nav-icon">⚡</span>
           <span>缓存管理</span>
@@ -361,6 +365,41 @@
                 </thead>
                 <tbody id="friendsTableBody">
                   <tr><td colspan="7"><div class="loading"><div class="spinner"></div><br>加载中...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 投稿审核 -->
+        <section class="page" id="page-submissions">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">用户投稿</span>
+              <div class="comment-filter-actions">
+                <select class="form-select comment-filter" id="submissionStatusFilter">
+                  <option value="">全部状态</option>
+                  <option value="pending">待审核</option>
+                  <option value="approved">已通过</option>
+                  <option value="rejected">不通过</option>
+                </select>
+                <button class="btn btn-sm btn-ghost" id="refreshSubmissionsBtn">刷新</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>标题</th>
+                    <th>投稿人</th>
+                    <th>分类</th>
+                    <th>状态</th>
+                    <th>提交时间</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="submissionsTableBody">
+                  <tr><td colspan="6"><div class="loading"><div class="spinner"></div><br>加载中...</div></td></tr>
                 </tbody>
               </table>
             </div>

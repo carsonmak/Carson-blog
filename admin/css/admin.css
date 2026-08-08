@@ -808,6 +808,17 @@ a {
   font-size: 12px;
 }
 
+.submission-summary-cell {
+  max-width: 320px;
+  margin-top: 5px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* 空状态 */
 .empty-state {
   text-align: center;

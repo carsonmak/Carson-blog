@@ -331,6 +331,7 @@
       categories: '分类管理',
       friends: '友链管理',
       comments: '留言管理',
+      submissions: '投稿审核',
       cache: '缓存管理',
       settings: '网站设置'
     };
@@ -355,6 +356,8 @@
     } else if (page === 'comments') {
       loadCommentSettings();
       loadComments();
+    } else if (page === 'submissions') {
+      loadSubmissions();
     } else if (page === 'cache') {
       loadCacheStats();
     } else if (page === 'settings') {
@@ -406,6 +409,7 @@
     var views = pick(stats, ['totalViews', 'views', 'totalView', 'viewCount']);
     var categories = pick(stats, ['totalCategories', 'categories', 'categoryCount']);
     var tags = pick(stats, ['totalTags', 'tags', 'tagCount']);
+    var pendingSubmissions = pick(stats, ['pendingSubmissions', 'pendingSubmissionCount']);
     var drafts = pick(stats, ['draftPosts', 'drafts', 'draftCount']);
     if (!drafts && total && published) {
       drafts = total - published;
@@ -416,6 +420,7 @@
       { icon: '📄', label: '总文章数', value: total, bg: '#E8F8EF' },
       { icon: '📢', label: '已发布', value: published, bg: '#E8F8EF' },
       { icon: '📝', label: '草稿', value: drafts, bg: '#FFF3E0' },
+      { icon: '🧾', label: '待审核投稿', value: pendingSubmissions, bg: '#FFF7E6' },
       { icon: '👁', label: '总浏览量', value: views, bg: '#E8F8EF' },
       { icon: '📁', label: '总分类', value: categories, bg: '#F0F5FF' },
       { icon: '🏷', label: '总标签', value: tags, bg: '#FFF1F0' }
@@ -553,6 +558,7 @@
     var editorTitle = document.getElementById('editorTitle');
     var form = document.getElementById('postForm');
     if (form) form.reset();
+    resetPostSaveButton();
 
     // 初始化 DZ 编辑器
     var dzEditor = initDzEditor();
@@ -649,6 +655,14 @@
     }
   }
 
+  function resetPostSaveButton() {
+    var saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = '保存文章';
+    }
+  }
+
   function collectFormData() {
     // 先同步 DZ 编辑器内容到隐藏 textarea
     if (dzEditorInstance) dzEditorInstance.sync();
@@ -741,6 +755,7 @@
       }, 600);
     } catch (err) {
       showToast(err.message || '保存失败');
+    } finally {
       if (saveBtn) {
         saveBtn.disabled = false;
         saveBtn.textContent = '保存文章';
@@ -845,6 +860,7 @@
       return (
         '<tr>' +
           '<td class="friend-order-cell">' + (index + 1) + '</td>' +
+          '<td class="friend-order-cell">' + escapeHtml(String(friend.sortOrder || 0)) + '</td>' +
           '<td>' +
             '<div class="friend-site-cell">' +
               avatar +
@@ -901,6 +917,7 @@
     document.getElementById('friendDescription').value = friend.description || '';
     document.getElementById('friendIconUrl').value = friend.iconUrl || '';
     document.getElementById('friendStatus').value = friend.status || 'pending';
+    document.getElementById('friendSortOrder').value = friend.sortOrder || 0;
     document.getElementById('friendAvatar').value = '';
     var title = document.getElementById('friendEditorTitle');
     if (title) title.textContent = '编辑友链';
@@ -920,6 +937,7 @@
     formData.append('iconUrl', document.getElementById('friendIconUrl').value.trim());
     formData.append('status', document.getElementById('friendStatus').value);
     formData.append('visible', document.getElementById('friendStatus').value === 'approved' ? 'true' : 'false');
+    formData.append('sortOrder', document.getElementById('friendSortOrder').value || '0');
     if (file) formData.append('avatar', file);
     return formData;
   }
@@ -1240,6 +1258,94 @@
     }
   }
 
+  /* ---------- 投稿审核 ---------- */
+
+  function getSubmissionStatusText(status) {
+    if (status === 'approved') return '已通过';
+    if (status === 'rejected') return '不通过';
+    return '待审核';
+  }
+
+  function getSubmissionStatusClass(status) {
+    if (status === 'approved') return 'badge-published';
+    if (status === 'rejected') return 'badge-rejected';
+    return 'badge-draft';
+  }
+
+  async function loadSubmissions() {
+    var tbody = document.getElementById('submissionsTableBody');
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><div class="spinner"></div><br>加载中...</div></td></tr>';
+    }
+    var status = document.getElementById('submissionStatusFilter')?.value || '';
+    var query = status ? '?status=' + encodeURIComponent(status) : '';
+    try {
+      var submissions = await apiRequest('/api/admin/submissions' + query, 'GET');
+      renderSubmissionsTable(submissions || []);
+    } catch (err) {
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">⚠️</div><p>' + escapeHtml(err.message) + '</p></div></td></tr>';
+      }
+    }
+  }
+
+  function renderSubmissionsTable(submissions) {
+    var tbody = document.getElementById('submissionsTableBody');
+    if (!tbody) return;
+    if (!submissions.length) {
+      tbody.innerHTML = (
+        '<tr><td colspan="6"><div class="empty-state">' +
+        '<div class="empty-icon">📝</div>' +
+        '<p>暂无用户投稿</p>' +
+        '</div></td></tr>'
+      );
+      return;
+    }
+
+    tbody.innerHTML = submissions.map(function (item) {
+      var status = item.reviewStatus || (item.published ? 'approved' : 'pending');
+      var badge = '<span class="badge ' + getSubmissionStatusClass(status) + '">' + getSubmissionStatusText(status) + '</span>';
+      var summary = item.summary ? '<div class="submission-summary-cell">' + escapeHtml(item.summary) + '</div>' : '';
+      var viewBtn = item.published
+        ? '<button class="btn btn-sm btn-ghost btn-submission-view" data-id="' + escapeHtml(String(item.id)) + '">前台查看</button>'
+        : '';
+      return (
+        '<tr>' +
+          '<td><div class="table-title-cell">' + escapeHtml(item.title || '无标题投稿') + '</div>' + summary + '</td>' +
+          '<td>' + escapeHtml(item.submittedBy || item.author || '-') + '</td>' +
+          '<td><span class="badge badge-category">' + escapeHtml(item.category || '投稿') + '</span></td>' +
+          '<td>' + badge + '</td>' +
+          '<td style="white-space:nowrap">' + formatDate(item.submittedAt || item.createdAt) + '</td>' +
+          '<td>' +
+            '<div class="row-actions">' +
+              '<button class="btn btn-sm btn-primary btn-submission-approve" data-id="' + escapeHtml(String(item.id)) + '">通过并发布</button>' +
+              '<button class="btn btn-sm btn-ghost btn-submission-reject" data-id="' + escapeHtml(String(item.id)) + '">不通过</button>' +
+              viewBtn +
+            '</div>' +
+          '</td>' +
+        '</tr>'
+      );
+    }).join('');
+  }
+
+  async function updateSubmissionStatus(id, status) {
+    var reason = '';
+    if (status === 'rejected') {
+      reason = prompt('请输入不通过原因（可留空）：') || '';
+    }
+    try {
+      await apiRequest('/api/admin/submissions/' + encodeURIComponent(id) + '/status', 'PATCH', {
+        status: status,
+        reason: reason
+      });
+      showToast(status === 'approved' ? '投稿已通过并发布' : '投稿状态已更新');
+      loadSubmissions();
+      loadDashboard();
+    } catch (err) {
+      showToast(err.message || '操作失败');
+    }
+  }
+
   /* ---------- 网站设置 ---------- */
 
   function renderSiteLogoPreview(logo) {
@@ -1492,6 +1598,24 @@
       });
     }
 
+    // 投稿审核表格操作（事件委托）
+    var submissionsTbody = document.getElementById('submissionsTableBody');
+    if (submissionsTbody) {
+      submissionsTbody.addEventListener('click', function (e) {
+        var btn = e.target.closest('button');
+        if (!btn) return;
+        var id = btn.getAttribute('data-id');
+        if (!id) return;
+        if (btn.classList.contains('btn-submission-approve')) {
+          updateSubmissionStatus(id, 'approved');
+        } else if (btn.classList.contains('btn-submission-reject')) {
+          updateSubmissionStatus(id, 'rejected');
+        } else if (btn.classList.contains('btn-submission-view')) {
+          window.open('/post.html?id=' + encodeURIComponent(id), '_blank');
+        }
+      });
+    }
+
     // 分类表格操作（事件委托）
     var categoriesTbody = document.getElementById('categoriesTableBody');
     if (categoriesTbody) {
@@ -1586,6 +1710,16 @@
     var commentTargetFilter = document.getElementById('commentTargetFilter');
     if (commentTargetFilter) {
       commentTargetFilter.addEventListener('change', loadComments);
+    }
+
+    var refreshSubmissionsBtn = document.getElementById('refreshSubmissionsBtn');
+    if (refreshSubmissionsBtn) {
+      refreshSubmissionsBtn.addEventListener('click', loadSubmissions);
+    }
+
+    var submissionStatusFilter = document.getElementById('submissionStatusFilter');
+    if (submissionStatusFilter) {
+      submissionStatusFilter.addEventListener('change', loadSubmissions);
     }
 
     var friendAvatarInput = document.getElementById('friendAvatar');
@@ -1716,17 +1850,7 @@
   async function clearCache(scope) {
     if (!confirm(scope === 'all' ? '确定要清除全部缓存吗？' : '确定要清除该分类缓存吗？')) return;
     try {
-      var pattern = '';
-      if (scope !== 'all') {
-        var patterns = {
-          posts: '/api/posts',
-          comments: '/api/comments',
-          friends: '/api/friends',
-          settings: '/api/settings'
-        };
-        pattern = patterns[scope] || scope;
-      }
-      var body = pattern ? { scope: 'pattern', pattern: pattern } : { scope: 'all' };
+      var body = { scope: scope || 'all' };
       var res = await apiRequest('/api/admin/cache/clear', 'POST', body);
       showToast(res.message || '缓存已清除（清除 ' + (res.cleared || 0) + ' 条）');
       loadCacheStats();

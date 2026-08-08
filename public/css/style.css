@@ -1218,6 +1218,126 @@ img {
   flex-wrap: wrap;
 }
 
+.profile-page {
+  max-width: 860px;
+}
+
+.profile-submission-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px var(--shadow-color);
+}
+
+.submission-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.public-textarea {
+  width: 100%;
+  min-height: 92px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 14px;
+  line-height: 1.65;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.public-content-textarea {
+  min-height: 220px;
+}
+
+.public-textarea:focus {
+  border-color: var(--wechat-green);
+  box-shadow: 0 0 0 3px var(--wechat-green-light);
+}
+
+.submission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.submission-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px;
+  background: var(--card-bg-alt);
+  border: 1px solid transparent;
+  border-radius: 14px;
+}
+
+.submission-item-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.submission-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 5px;
+}
+
+.submission-title-row h3 {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.submission-item p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+  margin-bottom: 6px;
+}
+
+.submission-meta,
+.submission-reason {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.submission-reason {
+  margin-top: 5px;
+  color: #fa5151;
+}
+
+.submission-status {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.submission-status.pending {
+  color: #d46b08;
+  background: #fff7e6;
+}
+
+.submission-status.approved {
+  color: var(--wechat-green);
+  background: var(--wechat-green-light);
+}
+
+.submission-status.rejected {
+  color: #fa5151;
+  background: #fff1f0;
+}
+
 /* ============================
    留言区
    ============================ */
@@ -1703,6 +1823,20 @@ img {
 
   .friend-form-actions .btn-primary {
     text-align: center;
+  }
+
+  .profile-submission-panel {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .submission-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .public-content-textarea {
+    min-height: 180px;
   }
 
   .mobile-tabbar {

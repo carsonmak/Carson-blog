@@ -196,6 +196,126 @@ function initProfilePage() {
   profileAvatar.textContent = (username.charAt(0) || 'U').toUpperCase();
 }
 
+function getSubmissionStatusText(status) {
+  if (status === 'approved') return '已通过';
+  if (status === 'rejected') return '不通过';
+  return '待审核';
+}
+
+async function loadMySubmissions() {
+  const list = document.getElementById('submissionList');
+  if (!list) return;
+  const token = localStorage.getItem('frontToken') || '';
+  if (!token) {
+    list.innerHTML = '<div class="empty"><p>请先登录后查看投稿。</p></div>';
+    return;
+  }
+  list.innerHTML = '<div class="loading"><div class="spinner"></div><p>正在加载投稿...</p></div>';
+  try {
+    const res = await fetch('/api/user/submissions', {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    const submissions = await parseResponse(res);
+    renderMySubmissions(submissions || []);
+  } catch (err) {
+    list.innerHTML = '<div class="error-tip"><p>投稿加载失败：' + escapeHTML(err.message) + '</p></div>';
+  }
+}
+
+function renderMySubmissions(submissions) {
+  const list = document.getElementById('submissionList');
+  if (!list) return;
+  if (!submissions.length) {
+    list.innerHTML = '<div class="empty"><p>还没有投稿，写下第一篇吧。</p></div>';
+    return;
+  }
+  list.innerHTML = submissions.map(function (item) {
+    const status = item.reviewStatus || (item.published ? 'approved' : 'pending');
+    const statusText = getSubmissionStatusText(status);
+    const statusClass = status === 'approved' ? 'approved' : (status === 'rejected' ? 'rejected' : 'pending');
+    const link = status === 'approved' && item.published
+      ? '<a class="auth-link" href="post.html?id=' + encodeURIComponent(item.id) + '">查看文章</a>'
+      : '';
+    return (
+      '<article class="submission-item">' +
+        '<div class="submission-item-main">' +
+          '<div class="submission-title-row">' +
+            '<h3>' + escapeHTML(item.title || '无标题投稿') + '</h3>' +
+            '<span class="submission-status ' + statusClass + '">' + statusText + '</span>' +
+          '</div>' +
+          '<p>' + escapeHTML(item.summary || '暂无摘要') + '</p>' +
+          '<div class="submission-meta">' + formatDate(item.submittedAt || item.createdAt) + ' · ' + escapeHTML(item.category || '投稿') + '</div>' +
+          (item.rejectionReason ? '<div class="submission-reason">原因：' + escapeHTML(item.rejectionReason) + '</div>' : '') +
+        '</div>' +
+        link +
+      '</article>'
+    );
+  }).join('');
+}
+
+function initSubmissionForm() {
+  const form = document.getElementById('submissionForm');
+  if (!form) return;
+  const btn = document.getElementById('submissionSubmitBtn');
+  const msg = document.getElementById('submissionMsg');
+  const refreshBtn = document.getElementById('refreshSubmissionsBtn');
+
+  function setMsg(text, type) {
+    if (!msg) return;
+    msg.textContent = text || '';
+    msg.className = 'friend-submit-msg' + (type ? ' ' + type : '');
+  }
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const token = localStorage.getItem('frontToken') || '';
+    if (!token) {
+      window.location.href = 'login.html';
+      return;
+    }
+    const data = {
+      title: document.getElementById('submissionTitle').value.trim(),
+      category: document.getElementById('submissionCategory').value.trim() || '投稿',
+      tags: document.getElementById('submissionTags').value.trim(),
+      summary: document.getElementById('submissionSummary').value.trim(),
+      content: document.getElementById('submissionContent').value.trim()
+    };
+    if (!data.title || !data.content) {
+      setMsg('请填写标题和正文', 'error');
+      return;
+    }
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '提交中...';
+    }
+    setMsg('', '');
+    try {
+      const res = await fetch('/api/user/submissions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify(data)
+      });
+      const result = await parseResponse(res);
+      form.reset();
+      setMsg(result.message || '投稿已提交，请等待审核', 'success');
+      loadMySubmissions();
+    } catch (err) {
+      setMsg(err.message || '投稿提交失败', 'error');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = '提交投稿';
+      }
+    }
+  });
+
+  if (refreshBtn) refreshBtn.addEventListener('click', loadMySubmissions);
+  loadMySubmissions();
+}
+
 function initFrontAuthForms() {
   const loginForm = document.getElementById('frontLoginForm');
   const registerForm = document.getElementById('frontRegisterForm');
@@ -977,6 +1097,7 @@ document.addEventListener('DOMContentLoaded', function () {
   initFrontAuthActions();
   initFrontAuthForms();
   initProfilePage();
+  initSubmissionForm();
 
   // 初始化手机端底部导航
   initMobileTabbar();
