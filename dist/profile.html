@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人中心 - CARSON</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="logo site-logo" onclick="window.location.href='index.html'"><span class="site-logo-text">CARSON</span></div>
+      <div class="nav-links">
+        <a href="index.html">首页</a>
+        <a href="articles.html">文章</a>
+        <a href="friends.html">朋友们</a>
+        <a href="about.html">关于</a>
+      </div>
+      <div class="navbar-actions">
+        <div class="auth-actions" id="authActions">
+          <a class="auth-link" href="login.html">登录</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container page-container profile-page">
+    <section class="auth-card profile-card">
+      <p class="page-kicker">Profile</p>
+      <h1>个人中心</h1>
+      <div class="profile-avatar-large" id="profileAvatarLarge">U</div>
+      <p class="profile-name" id="profileName">未登录</p>
+      <p class="auth-card-desc">你可以在这里向网站投稿。投稿提交后会进入后台审核，管理员通过后才会显示在前台文章列表。</p>
+      <div class="profile-actions">
+        <a class="btn-primary" href="index.html">返回首页</a>
+        <a class="auth-link" href="friends.html">申请友链</a>
+      </div>
+    </section>
+
+    <section class="profile-submission-panel">
+      <div class="section-title-row">
+        <div>
+          <h2>我要投稿</h2>
+          <span>审核通过后，文章会显示在前台文章列表和首页。</span>
+        </div>
+      </div>
+      <form class="submission-form" id="submissionForm" autocomplete="off">
+        <div class="form-group-public">
+          <label>标题 <span>*</span></label>
+          <input type="text" id="submissionTitle" maxlength="80" placeholder="请输入文章标题" required>
+        </div>
+        <div class="form-row-public">
+          <div class="form-group-public">
+            <label>分类</label>
+            <input type="text" id="submissionCategory" maxlength="30" placeholder="例如：投稿">
+          </div>
+          <div class="form-group-public">
+            <label>标签</label>
+            <input type="text" id="submissionTags" placeholder="多个标签用逗号分隔">
+          </div>
+        </div>
+        <div class="form-group-public">
+          <label>摘要</label>
+          <textarea class="public-textarea" id="submissionSummary" maxlength="300" placeholder="请输入文章摘要（选填）"></textarea>
+        </div>
+        <div class="form-group-public">
+          <label>正文 <span>*</span></label>
+          <textarea class="public-textarea public-content-textarea" id="submissionContent" maxlength="20000" placeholder="请输入投稿正文，支持换行" required></textarea>
+        </div>
+        <div class="friend-form-actions">
+          <button type="submit" class="btn-primary" id="submissionSubmitBtn">提交投稿</button>
+          <span class="friend-submit-msg" id="submissionMsg"></span>
+        </div>
+      </form>
+    </section>
+
+    <section class="profile-submission-panel">
+      <div class="section-title-row">
+        <div>
+          <h2>我的投稿</h2>
+          <span>查看投稿审核状态。</span>
+        </div>
+        <button class="auth-link" type="button" id="refreshSubmissionsBtn">刷新</button>
+      </div>
+      <div class="submission-list" id="submissionList">
+        <div class="loading"><div class="spinner"></div><p>正在加载投稿...</p></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

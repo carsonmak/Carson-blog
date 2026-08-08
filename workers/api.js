@@ -101,7 +101,8 @@ function defaultDB() {
         published: true,
         pinned: false,
         announcement: false,
-        showOnHome: true
+      showOnHome: true,
+      reviewStatus: 'approved'
       }
     ],
     categories: ['公告', '技术', '生活', '随笔'],
@@ -153,7 +154,8 @@ function migrateDB(db) {
     announcement: false,
     showOnHome: true,
     ...post,
-    published: post.published !== false
+    published: post.published !== false,
+    reviewStatus: post.reviewStatus || (post.submittedBy ? (post.published ? 'approved' : 'pending') : 'approved')
   }));
   db.friends = db.friends.map(friend => ({
     status: 'approved',
@@ -193,6 +195,16 @@ function normalizeUrl(url) {
   if (!value) return '';
   if (/^https?:\/\//i.test(value)) return value;
   return 'https://' + value;
+}
+
+function escapeUserContent(text) {
+  return String(text || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/\n/g, '<br>');
 }
 
 function normalizeCommentSettings(settings = {}) {
@@ -247,6 +259,12 @@ function formString(form, key, fallback = '') {
 async function requireAuth(request, env) {
   const user = await verifyToken(request, env);
   if (!user) return null;
+  return user;
+}
+
+async function requireFrontUser(request, env) {
+  const user = await verifyToken(request, env);
+  if (!user || user.type !== 'user') return null;
   return user;
 }
 
@@ -323,6 +341,62 @@ async function handleUsers(request, env, path, method) {
     const user = await requireAuth(request, env);
     if (!user || user.type !== 'user') return error('未登录', 401);
     return json({ username: user.username });
+  }
+  if (path === '/api/user/submissions' && method === 'GET') {
+    const user = await requireFrontUser(request, env);
+    if (!user) return error('请先登录前台账号', 401);
+    const db = await loadDB(env);
+    const list = db.posts
+      .filter(post => post.submittedBy === user.username)
+      .sort((a, b) => new Date(b.submittedAt || b.createdAt) - new Date(a.submittedAt || a.createdAt))
+      .map(({ content, ...rest }) => rest);
+    return json(list);
+  }
+  if (path === '/api/user/submissions' && method === 'POST') {
+    const user = await requireFrontUser(request, env);
+    if (!user) return error('请先登录前台账号', 401);
+    const db = await loadDB(env);
+    const body = await readJSON(request);
+    const title = String(body.title || '').trim();
+    const summary = String(body.summary || '').trim();
+    const content = String(body.content || '').trim();
+    const category = String(body.category || '投稿').trim() || '投稿';
+    const rawTags = Array.isArray(body.tags) ? body.tags : String(body.tags || '').split(/[,，]/);
+    const tags = rawTags.map(tag => String(tag || '').trim()).filter(Boolean).slice(0, 8);
+    if (!title) return error('投稿标题不能为空');
+    if (!content) return error('投稿正文不能为空');
+    if (title.length > 80) return error('标题不能超过 80 个字符');
+    if (summary.length > 300) return error('摘要不能超过 300 个字符');
+    if (content.length > 20000) return error('正文不能超过 20000 个字符');
+    const post = {
+      id: Date.now().toString() + '-' + crypto.randomUUID().slice(0, 8),
+      title,
+      summary,
+      content: escapeUserContent(content),
+      cover: '',
+      author: user.username,
+      category,
+      tags,
+      createdAt: now(),
+      updatedAt: now(),
+      views: 0,
+      published: false,
+      pinned: false,
+      announcement: false,
+      showOnHome: true,
+      reviewStatus: 'pending',
+      submittedBy: user.username,
+      submittedAt: now(),
+      reviewedAt: '',
+      reviewer: '',
+      rejectionReason: ''
+    };
+    db.posts.push(post);
+    if (!db.categories.includes(category)) db.categories.push(category);
+    tags.forEach(tag => { if (tag && !db.tags.includes(tag)) db.tags.push(tag); });
+    await saveDB(env, db);
+    const { content: _content, ...safe } = post;
+    return json({ message: '投稿已提交，请等待管理员审核', submission: safe }, 201);
   }
   return null;
 }
@@ -401,7 +475,8 @@ async function handlePosts(request, env, path, method, url) {
       published: body.published !== undefined ? !!body.published : true,
       pinned: !!body.pinned,
       announcement: !!body.announcement,
-      showOnHome: !!body.showOnHome
+      showOnHome: !!body.showOnHome,
+      reviewStatus: 'approved'
     };
     db.posts.push(post);
     if (post.category && !db.categories.includes(post.category)) db.categories.push(post.category);
@@ -460,6 +535,42 @@ async function handlePosts(request, env, path, method, url) {
     return json({ url: urlPath, html: `<p><img src="${urlPath}" alt="文章图片"></p>` }, 201);
   }
 
+  return null;
+}
+
+async function handleSubmissions(request, env, path, method, url) {
+  const statusMatch = path.match(/^\/api\/admin\/submissions\/([^/]+)\/status$/);
+  if (path === '/api/admin/submissions' && method === 'GET') {
+    const user = await requireAuth(request, env);
+    if (!user || user.role !== 'admin') return error('未登录或登录已过期', 401);
+    const db = await loadDB(env);
+    const status = String(url.searchParams.get('status') || '').trim();
+    let submissions = db.posts.filter(post => post.submittedBy || ['pending', 'approved', 'rejected'].includes(post.reviewStatus));
+    if (['pending', 'approved', 'rejected'].includes(status)) {
+      submissions = submissions.filter(post => (post.reviewStatus || (post.published ? 'approved' : 'pending')) === status);
+    }
+    return json(submissions
+      .sort((a, b) => new Date(b.submittedAt || b.createdAt) - new Date(a.submittedAt || a.createdAt))
+      .map(({ content, ...rest }) => rest));
+  }
+  if (statusMatch && method === 'PATCH') {
+    const user = await requireAuth(request, env);
+    if (!user || user.role !== 'admin') return error('未登录或登录已过期', 401);
+    const db = await loadDB(env);
+    const body = await readJSON(request);
+    const post = db.posts.find(item => String(item.id) === decodeURIComponent(statusMatch[1]));
+    if (!post || !post.submittedBy) return error('投稿不存在', 404);
+    const status = String(body.status || '').trim();
+    if (!['pending', 'approved', 'rejected'].includes(status)) return error('审核状态无效');
+    post.reviewStatus = status;
+    post.published = status === 'approved';
+    post.reviewedAt = now();
+    post.reviewer = user.username || 'admin';
+    post.rejectionReason = status === 'rejected' ? String(body.reason || '').trim() : '';
+    post.updatedAt = now();
+    await saveDB(env, db);
+    return json(post);
+  }
   return null;
 }
 
@@ -807,8 +918,33 @@ async function handleStats(request, env, path, method) {
     totalCategories: db.categories.length,
     totalTags: db.tags.length,
     draftPosts: db.posts.filter(p => !p.published).length,
+    pendingSubmissions: db.posts.filter(p => p.submittedBy && (p.reviewStatus || 'pending') === 'pending').length,
     last7Days
   });
+}
+
+async function handleCache(request, env, path, method) {
+  if (path !== '/api/admin/cache/stats' && path !== '/api/admin/cache/clear') return null;
+  const user = await requireAuth(request, env);
+  if (!user || user.role !== 'admin') return error('未登录或登录已过期', 401);
+  if (path === '/api/admin/cache/stats' && method === 'GET') {
+    return json({
+      total: 0,
+      expired: 0,
+      active: 0,
+      entries: [],
+      mode: 'cloudflare',
+      message: 'Cloudflare Worker 版本没有本地内存缓存；静态资源和边缘缓存由 Cloudflare 平台管理。'
+    });
+  }
+  if (path === '/api/admin/cache/clear' && method === 'POST') {
+    return json({
+      message: 'Cloudflare 版本已接收清理请求。应用数据接口实时读取 D1；如需清理边缘缓存，请在 Cloudflare 控制台执行 Purge Cache。',
+      cleared: 0,
+      mode: 'cloudflare'
+    });
+  }
+  return null;
 }
 
 async function handleUploadGet(env, path) {
@@ -848,11 +984,13 @@ export default {
         handleAuth,
         handleUsers,
         handlePosts,
+        handleSubmissions,
         handleMetaSettings,
         handleCategories,
         handleComments,
         handleFriends,
-        handleStats
+        handleStats,
+        handleCache
       ];
 
       for (const handler of handlers) {
